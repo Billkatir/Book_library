@@ -104,7 +104,7 @@ app.post('/book/borrow/id/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      'UPDATE books SET available_borrow = FALSE WHERE id = $1 AND available_borrow = TRUE RETURNING *',
+      'UPDATE books SET available_borrow = FALSE,available_buy = FALSE WHERE id = $1 AND available_borrow = TRUE RETURNING *',
       [id]
     );
     console.log('Query Result:', result);
@@ -114,7 +114,7 @@ app.post('/book/borrow/id/:id', async (req, res) => {
         book: result.rows[0],
       });
     } else {
-      res.status(400).json({
+      res.status(201).json({
         message: 'Book is not available for borrowing or does not exist',
       });
     }
@@ -131,7 +131,7 @@ app.post('/book/buy/id/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      'UPDATE books SET available_buy = FALSE WHERE id = $1 AND available_buy = TRUE RETURNING *',
+      'UPDATE books SET available_buy = FALSE, available_borrow = FALSE WHERE id = $1 AND available_buy = TRUE RETURNING *',
       [id]
     );
     console.log('Query Result:', result);
@@ -141,7 +141,7 @@ app.post('/book/buy/id/:id', async (req, res) => {
         book: result.rows[0],
       });
     } else {
-      res.status(400).json({
+      res.status(201).json({
         message: 'Book is not available for purchase or does not exist',
       });
     }
@@ -158,7 +158,7 @@ app.post('/book/return/id/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const result = await pool.query(
-      'UPDATE books SET available_borrow = TRUE WHERE id = $1 AND available_borrow = FALSE RETURNING *',
+      'UPDATE books SET available_borrow = TRUE, available_buy= TRUE  WHERE id = $1 AND available_borrow = FALSE AND available_buy = FALSE RETURNING *',
       [id]
     );
     console.log('Query Result:', result);
@@ -168,7 +168,7 @@ app.post('/book/return/id/:id', async (req, res) => {
         book: result.rows[0],
       });
     } else {
-      res.status(400).json({
+      res.status(201).json({
         message: 'Book does not exist or was not borrowed',
       });
     }
