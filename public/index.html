@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Library App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    pre {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Library App</h1>
+
+    <!-- Fetch All Books -->
+    <button id="fetchBooks">Fetch All Books</button>
+
+    <!-- Fetch Book by ID -->
+    <form id="fetchBookByIdForm">
+      <label for="bookId">Fetch Book by ID:</label>
+      <input type="text" id="bookId" placeholder="Enter Book ID" required />
+      <button type="submit">Fetch</button>
+    </form>
+
+    <!-- Fetch Books by Author -->
+    <form id="fetchBooksByAuthorForm">
+      <label for="authorName">Fetch Books by Author:</label>
+      <input type="text" id="authorName" placeholder="Enter Author Name" required />
+      <button type="submit">Fetch</button>
+    </form>
+
+    <!-- Borrow a Book -->
+    <form id="borrowBookForm">
+      <label for="borrowBookId">Borrow Book (ID):</label>
+      <input type="text" id="borrowBookId" placeholder="Enter Book ID" required />
+      <button type="submit">Borrow</button>
+    </form>
+
+    <!-- Buy a Book -->
+    <form id="buyBookForm">
+      <label for="buyBookId">Buy Book (ID):</label>
+      <input type="text" id="buyBookId" placeholder="Enter Book ID" required />
+      <button type="submit">Buy</button>
+    </form>
+
+    <!-- Return a Book -->
+    <form id="returnBookForm">
+      <label for="returnBookId">Return Book (ID):</label>
+      <input type="text" id="returnBookId" placeholder="Enter Book ID" required />
+      <button type="submit">Return</button>
+    </form>
+
+    <!-- Output Area -->
+    <h2>Output:</h2>
+    <pre id="output"></pre>
+  </div>
+
+  <script>
+    const output = document.getElementById('output');
+
+    // Helper function to fetch data and display it in the output area
+    async function fetchData(url, method = 'GET', body = null) {
+      try {
+        const options = {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: body ? JSON.stringify(body) : null,
+        };
+
+        const response = await fetch(url, options);
+        if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        const data = await response.json();
+        output.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        output.textContent = error.message;
+      }
+    }
+
+    // Fetch All Books
+    document.getElementById('fetchBooks').addEventListener('click', () => {
+      fetchData('http://localhost:3000/books/ids');
+    });
+
+    // Fetch Book by ID
+    document.getElementById('fetchBookByIdForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const bookId = document.getElementById('bookId').value;
+      fetchData(`http://localhost:3000/books/${bookId}`);
+    });
+
+    // Fetch Books by Author
+    document.getElementById('fetchBooksByAuthorForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const authorName = document.getElementById('authorName').value;
+      fetchData(`http://localhost:3000/books/author/${encodeURIComponent(authorName)}`);
+    });
+
+    // Borrow a Book
+    document.getElementById('borrowBookForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const borrowBookId = document.getElementById('borrowBookId').value;
+      fetchData(`http://localhost:3000/book/borrow/id/${borrowBookId}`, 'POST');
+    });
+
+    // Buy a Book
+    document.getElementById('buyBookForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const buyBookId = document.getElementById('buyBookId').value;
+      fetchData(`http://localhost:3000/book/buy/id/${buyBookId}`, 'POST');
+    });
+
+    // Return a Book
+    document.getElementById('returnBookForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const returnBookId = document.getElementById('returnBookId').value;
+      fetchData(`http://localhost:3000/book/return/id/${returnBookId}`, 'POST');
+    });
+  </script>
+</body>
+</html>

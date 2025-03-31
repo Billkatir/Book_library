@@ -7,7 +7,7 @@ from psycopg2.errors import DuplicateDatabase
 import psycopg2
 from models.books import Book, get_books
 
-# Database configuration
+
 POSTGRES_USER = "postgres"
 POSTGRES_PASSWORD = "admin"
 DATABASE_NAME = "library_db"
@@ -43,7 +43,7 @@ def create_tables():
     
     try:
         engine = create_engine(DATABASE_URL)
-        SQLModel.metadata.create_all(engine)  # Use SQLModel metadata
+        SQLModel.metadata.create_all(engine)  
         print("Tables created successfully.")
     except OperationalError as e:
         print(f"Failed to create tables: {e}")
@@ -56,17 +56,14 @@ def insert_books():
     session = Session()
 
     try:
-        # Verify if the 'books' table exists
         inspector = inspect(engine)
         if 'books' not in inspector.get_table_names():
             print("Error: 'books' table does not exist. Please run `create_tables()` first.")
             return
 
-        # Get existing books
         existing_books = session.query(Book.title).all()
         existing_titles = {book[0] for book in existing_books}
 
-        # Get all books to insert
         books_to_insert = [book for book in get_books() if book.title not in existing_titles]
 
         if books_to_insert:
